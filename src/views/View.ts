@@ -5,7 +5,17 @@ export abstract class View<T extends Model<K>, K extends hasId> {
     this.bindModel();
   }
 
-  abstract eventsMap(): { [key: string]: () => void };
+  regionsMap(): { [key: string]: string } {
+    return {};
+  }
+
+  regions(): { [key: string]: Element } {
+    return {};
+  }
+
+  eventsMap(): { [key: string]: () => void } {
+    return {};
+  }
   abstract template(): string;
 
   bindModel() {
@@ -24,13 +34,29 @@ export abstract class View<T extends Model<K>, K extends hasId> {
     }
   }
 
+  mapRegions(fragment: DocumentFragment) {
+    const regionsMap = this.regionsMap();
+    for (let region in regionsMap) {
+      const selectorEl = fragment.querySelector(regionsMap[region]);
+      if (selectorEl) {
+        this.regions[region] = selectorEl;
+      }
+    }
+  }
+
+  onRender(): void {}
+
   render() {
     this.parent.innerHTML = "";
     const template = document.createElement("template");
     template.innerHTML = this.template();
     // attach event listeners
     this.bindEvents(template.content);
-    // append template content in the parent element of UserForm instance
+    // fill the regions value of the instance by mapping over the regionsMap value
+    this.mapRegions(template.content);
+    // render the child element of the View's instance
+    this.onRender();
+    // append template content in the parent element of View's instance
     this.parent.append(template.content);
   }
 }
