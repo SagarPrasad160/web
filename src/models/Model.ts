@@ -1,29 +1,17 @@
 import { AxiosPromise, AxiosResponse } from "axios";
 
-interface Attributes<T, K> {
-  get<K extends keyof T>(key: K): T[K];
-  set(attrs: T): void;
-  getAll(): T;
-}
+import { Eventing } from "./Eventing";
+import { Attributes } from "./Attributes";
+import { ApiSync } from "./ApiSync";
 
-interface Eventing {
-  on(eventName: string, callback: () => void): void;
-  trigger(eventName: string): void;
-}
-
-interface ApiSync<T> {
-  fetch(id: hasId): AxiosPromise;
-  save(attrs: T): AxiosPromise;
-}
-
-interface hasId {
+export interface hasId {
   id?: number;
 }
 
-export class Model<T extends hasId, K> {
+export class Model<T extends hasId> {
   constructor(
     private events: Eventing,
-    private attributes: Attributes<T, K>,
+    private attributes: Attributes<T>,
     private sync: ApiSync<T>
   ) {}
 

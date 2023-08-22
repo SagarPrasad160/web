@@ -10,7 +10,6 @@ export class Eventing {
 
   trigger = (eventName: string) => {
     const handlers = this.events[eventName];
-    console.log(handlers);
     if (!handlers || handlers.length === 0) {
       return;
     }

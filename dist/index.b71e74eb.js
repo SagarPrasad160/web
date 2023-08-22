@@ -574,45 +574,137 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
 }
 
 },{}],"h7u1C":[function(require,module,exports) {
-var _collection = require("./models/Collection");
 var _user = require("./models/User");
-const collection = new (0, _collection.Collection)("http://localhost:3000/user", (0, _user.User).buildUser);
+var _userForm = require("./views/UserForm");
+const collection = (0, _user.User).buildUserCollection();
+const user = (0, _user.User).buildUser({
+    name: "name",
+    age: 0
+});
 collection.on("change", ()=>{
     console.log(collection);
 });
-collection.fetch();
+const root = document.getElementById("root");
+if (root) {
+    const userForm = new (0, _userForm.UserForm)(root, user);
+    userForm.render();
+}
 
-},{"./models/Collection":"dD11O","./models/User":"4rcHn"}],"dD11O":[function(require,module,exports) {
+},{"./models/User":"4rcHn","./views/UserForm":"gXSLD"}],"4rcHn":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Collection", ()=>Collection);
-var _axios = require("axios");
-var _axiosDefault = parcelHelpers.interopDefault(_axios);
+parcelHelpers.export(exports, "User", ()=>User);
 var _eventing = require("./Eventing");
-class Collection {
-    constructor(rootUrl, deserialize){
-        this.rootUrl = rootUrl;
-        this.deserialize = deserialize;
-        this.models = [];
-        this.events = new (0, _eventing.Eventing)();
+var _attributes = require("./Attributes");
+var _apiSync = require("./ApiSync");
+var _collection = require("./Collection");
+var _model = require("./Model");
+const rootUrl = "http://localhost:3000/user";
+class User extends (0, _model.Model) {
+    static buildUser(data) {
+        return new User(new (0, _eventing.Eventing)(), new (0, _attributes.Attributes)(data), new (0, _apiSync.ApiSync)(rootUrl));
     }
-    get on() {
-        return this.events.on;
+    static buildUserCollection() {
+        return new (0, _collection.Collection)(rootUrl, User.buildUser);
     }
-    get trigger() {
-        return this.events.trigger;
-    }
-    fetch() {
-        (0, _axiosDefault.default).get(this.rootUrl).then((res)=>{
-            res.data.forEach((json)=>{
-                this.models.push(this.deserialize(json));
-            });
-            this.events.trigger("change");
+    setRandomAge() {
+        const age = Math.floor(Math.random() * 100);
+        this.set({
+            age: age
         });
     }
 }
 
-},{"axios":"jo6P5","./Eventing":"7459s","@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"jo6P5":[function(require,module,exports) {
+},{"./Eventing":"7459s","./Attributes":"6Bbds","./ApiSync":"3wylh","./Collection":"dD11O","./Model":"f033k","@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"7459s":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Eventing", ()=>Eventing);
+class Eventing {
+    constructor(){
+        this.events = {};
+        this.on = (eventName, callback)=>{
+            const handlers = this.events[eventName] || [];
+            handlers.push(callback);
+            this.events[eventName] = handlers;
+        };
+        this.trigger = (eventName)=>{
+            const handlers = this.events[eventName];
+            if (!handlers || handlers.length === 0) return;
+            handlers.forEach((callback)=>callback());
+        };
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"eBXLI":[function(require,module,exports) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, "__esModule", {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === "default" || key === "__esModule" || dest.hasOwnProperty(key)) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
+},{}],"6Bbds":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Attributes", ()=>Attributes);
+class Attributes {
+    constructor(data){
+        this.data = data;
+        this.get = (key)=>{
+            return this.data[key];
+        };
+        this.getAll = ()=>{
+            return this.data;
+        };
+        this.set = (update)=>{
+            Object.assign(this.data, update);
+        };
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"3wylh":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "ApiSync", ()=>ApiSync);
+var _axios = require("axios");
+var _axiosDefault = parcelHelpers.interopDefault(_axios);
+class ApiSync {
+    constructor(rootUrl){
+        this.rootUrl = rootUrl;
+    }
+    fetch({ id }) {
+        return (0, _axiosDefault.default).get(`${this.rootUrl}/${id}`);
+    }
+    save(data) {
+        const { id } = data;
+        if (id) return (0, _axiosDefault.default).put(`${this.rootUrl}/${id}`, data);
+        else return (0, _axiosDefault.default).post(this.rootUrl, data);
+    }
+}
+
+},{"axios":"jo6P5","@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"jo6P5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "default", ()=>(0, _axiosJsDefault.default));
@@ -1289,37 +1381,7 @@ function bind(fn, thisArg) {
     };
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"eBXLI":[function(require,module,exports) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, "__esModule", {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === "default" || key === "__esModule" || dest.hasOwnProperty(key)) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
-
-},{}],"cpqD8":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"cpqD8":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _utilsJs = require("./../utils.js");
@@ -4967,82 +5029,37 @@ Object.entries(HttpStatusCode).forEach(([key, value])=>{
 });
 exports.default = HttpStatusCode;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"7459s":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"dD11O":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Eventing", ()=>Eventing);
-class Eventing {
-    constructor(){
-        this.events = {};
-        this.on = (eventName, callback)=>{
-            const handlers = this.events[eventName] || [];
-            handlers.push(callback);
-            this.events[eventName] = handlers;
-        };
-        this.trigger = (eventName)=>{
-            const handlers = this.events[eventName];
-            console.log(handlers);
-            if (!handlers || handlers.length === 0) return;
-            handlers.forEach((callback)=>callback());
-        };
-    }
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"4rcHn":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "User", ()=>User);
-var _eventing = require("./Eventing");
-var _attributes = require("./Attributes");
-var _apiSync = require("./ApiSync");
-var _model = require("./Model");
-const rootUrl = "http://localhost:3000/user";
-class User extends (0, _model.Model) {
-    static buildUser(data) {
-        return new User(new (0, _eventing.Eventing)(), new (0, _attributes.Attributes)(data), new (0, _apiSync.ApiSync)(rootUrl));
-    }
-}
-
-},{"./Eventing":"7459s","./Attributes":"6Bbds","./ApiSync":"3wylh","./Model":"f033k","@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"6Bbds":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Attributes", ()=>Attributes);
-class Attributes {
-    constructor(data){
-        this.data = data;
-        this.get = (key)=>{
-            return this.data[key];
-        };
-        this.getAll = ()=>{
-            return this.data;
-        };
-        this.set = (update)=>{
-            Object.assign(this.data, update);
-        };
-    }
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"3wylh":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "ApiSync", ()=>ApiSync);
+parcelHelpers.export(exports, "Collection", ()=>Collection);
 var _axios = require("axios");
 var _axiosDefault = parcelHelpers.interopDefault(_axios);
-class ApiSync {
-    constructor(rootUrl){
+var _eventing = require("./Eventing");
+class Collection {
+    constructor(rootUrl, deserialize){
         this.rootUrl = rootUrl;
+        this.deserialize = deserialize;
+        this.models = [];
+        this.events = new (0, _eventing.Eventing)();
     }
-    fetch({ id }) {
-        return (0, _axiosDefault.default).get(`${this.rootUrl}/${id}`);
+    get on() {
+        return this.events.on;
     }
-    save(data) {
-        const { id } = data;
-        if (id) return (0, _axiosDefault.default).put(`${this.rootUrl}/${id}`, data);
-        else return (0, _axiosDefault.default).post(this.rootUrl, data);
+    get trigger() {
+        return this.events.trigger;
+    }
+    fetch() {
+        (0, _axiosDefault.default).get(this.rootUrl).then((res)=>{
+            res.data.forEach((json)=>{
+                this.models.push(this.deserialize(json));
+            });
+            this.events.trigger("change");
+        });
     }
 }
 
-},{"axios":"jo6P5","@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"f033k":[function(require,module,exports) {
+},{"axios":"jo6P5","./Eventing":"7459s","@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"f033k":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "Model", ()=>Model);
@@ -5079,6 +5096,82 @@ class Model {
         this.sync.save(data).then((res)=>{
             this.set(res.data);
         });
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"gXSLD":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "UserForm", ()=>UserForm);
+var _view = require("./View");
+class UserForm extends (0, _view.View) {
+    eventsMap() {
+        return {
+            "click:.set-name": this.onsetNameClick,
+            "click:.set-age": this.onSetAgeClick,
+            "click:.save-model": this.onSaveModelClick
+        };
+    }
+    template() {
+        return `
+      <div>
+        <input placeholder="${this.model.get("name")}" />
+        <button class="set-name">Change Name</button>
+        <button class="set-age">Set Random Age</button>
+        <button class="save-model">Save</button>
+      </div>
+    `;
+    }
+    constructor(...args){
+        super(...args);
+        this.onSaveModelClick = ()=>{
+            this.model.save();
+        };
+        this.onsetNameClick = ()=>{
+            const input = this.parent.querySelector("input");
+            const name = input?.value;
+            this.model.set({
+                name: name
+            });
+        };
+        this.onSetAgeClick = ()=>{
+            this.model.setRandomAge();
+        };
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI","./View":"5Vo78"}],"5Vo78":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "View", ()=>View);
+class View {
+    constructor(parent, model){
+        this.parent = parent;
+        this.model = model;
+        this.bindModel();
+    }
+    bindModel() {
+        this.model.on("change", ()=>{
+            this.render();
+        });
+    }
+    bindEvents(fragment) {
+        const events = this.eventsMap();
+        for(let key in events){
+            const [event, selector] = key.split(":");
+            fragment.querySelectorAll(selector).forEach((el)=>{
+                el.addEventListener(event, events[key]);
+            });
+        }
+    }
+    render() {
+        this.parent.innerHTML = "";
+        const template = document.createElement("template");
+        template.innerHTML = this.template();
+        // attach event listeners
+        this.bindEvents(template.content);
+        // append template content in the parent element of UserForm instance
+        this.parent.append(template.content);
     }
 }
 

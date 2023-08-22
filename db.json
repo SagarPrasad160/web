@@ -4,6 +4,11 @@
       "name": "Sagar",
       "age": 23,
       "id": 1
+    },
+    {
+      "name": "new name",
+      "age": 0,
+      "id": 2
     }
   ]
 }
