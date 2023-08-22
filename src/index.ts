@@ -1,16 +1,16 @@
 import { User } from "./models/User";
-import { UserEdit } from "./views/UserEdit";
+import { CollectionView } from "./views/CollectionView";
 const collection = User.buildUserCollection();
 
-const user = User.buildUser({ name: "name", age: 0 });
-
-collection.on("change", () => {
-  console.log(collection);
-});
+collection.fetch();
 
 const root = document.getElementById("root");
 
 if (root) {
-  const userEdit = new UserEdit(root, user);
-  userEdit.render();
+  collection.on("change", () => {
+    const collectionView = new CollectionView(root, collection.models);
+    collectionView.render();
+  });
+} else {
+  throw new Error("Root element does not exists.");
 }

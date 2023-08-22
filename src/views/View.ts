@@ -1,7 +1,7 @@
 import { Model, hasId } from "../models/Model";
 
 export abstract class View<T extends Model<K>, K extends hasId> {
-  constructor(public parent: HTMLElement, public model: T) {
+  constructor(public parent: Element, public model: T) {
     this.bindModel();
   }
 
@@ -9,9 +9,7 @@ export abstract class View<T extends Model<K>, K extends hasId> {
     return {};
   }
 
-  regions(): { [key: string]: Element } {
-    return {};
-  }
+  regions: { [key: string]: Element } = {};
 
   eventsMap(): { [key: string]: () => void } {
     return {};
