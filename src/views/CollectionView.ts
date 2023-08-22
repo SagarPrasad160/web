@@ -1,29 +1,11 @@
-import { Model } from "../models/Model";
-import { UserProps } from "../models/User";
+import { Model, hasId } from "../models/Model";
 
-export class CollectionView<T extends Model<UserProps>> {
+export abstract class CollectionView<T extends Model<K>, K extends hasId> {
   constructor(public parent: Element, public models: T[]) {}
 
-  renderItem(model: T) {
-    return `
-    <div>
-      <h3>Name: ${model.get("name")}</h3>
-      <h3>Age: ${model.get("age")}</h3>
-    </div>
-    `;
-  }
+  abstract renderItem(model: T): string;
 
-  template() {
-    return `
-    <div class="collection">
-        ${this.models
-          .map((model: T) => {
-            return this.renderItem(model);
-          })
-          .join("")}
-    </div>
-    `;
-  }
+  abstract template(): string;
 
   render() {
     this.parent.innerHTML = "";

@@ -1,5 +1,5 @@
 import { User } from "./models/User";
-import { CollectionView } from "./views/CollectionView";
+import { UserList } from "./views/UserList";
 const collection = User.buildUserCollection();
 
 collection.fetch();
@@ -8,8 +8,8 @@ const root = document.getElementById("root");
 
 if (root) {
   collection.on("change", () => {
-    const collectionView = new CollectionView(root, collection.models);
-    collectionView.render();
+    const userList = new UserList(root, collection.models);
+    userList.render();
   });
 } else {
   throw new Error("Root element does not exists.");

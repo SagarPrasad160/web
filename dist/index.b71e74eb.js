@@ -575,17 +575,17 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
 
 },{}],"h7u1C":[function(require,module,exports) {
 var _user = require("./models/User");
-var _collectionView = require("./views/CollectionView");
+var _userList = require("./views/UserList");
 const collection = (0, _user.User).buildUserCollection();
 collection.fetch();
 const root = document.getElementById("root");
 if (root) collection.on("change", ()=>{
-    const collectionView = new (0, _collectionView.CollectionView)(root, collection.models);
-    collectionView.render();
+    const userList = new (0, _userList.UserList)(root, collection.models);
+    userList.render();
 });
 else throw new Error("Root element does not exists.");
 
-},{"./models/User":"4rcHn","./views/CollectionView":"4BOou"}],"4rcHn":[function(require,module,exports) {
+},{"./models/User":"4rcHn","./views/UserList":"mUs49"}],"4rcHn":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "User", ()=>User);
@@ -5094,15 +5094,12 @@ class Model {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"4BOou":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"mUs49":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "CollectionView", ()=>CollectionView);
-class CollectionView {
-    constructor(parent, models){
-        this.parent = parent;
-        this.models = models;
-    }
+parcelHelpers.export(exports, "UserList", ()=>UserList);
+var _collectionView = require("./CollectionView");
+class UserList extends (0, _collectionView.CollectionView) {
     renderItem(model) {
         return `
     <div>
@@ -5119,6 +5116,17 @@ class CollectionView {
         }).join("")}
     </div>
     `;
+    }
+}
+
+},{"./CollectionView":"4BOou","@parcel/transformer-js/src/esmodule-helpers.js":"eBXLI"}],"4BOou":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "CollectionView", ()=>CollectionView);
+class CollectionView {
+    constructor(parent, models){
+        this.parent = parent;
+        this.models = models;
     }
     render() {
         this.parent.innerHTML = "";
